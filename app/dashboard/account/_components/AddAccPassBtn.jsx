@@ -61,10 +61,10 @@ function AddAccPassBtn() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      website: "https://www.google.com",
-      email: "test@test.com ",
-      password: "123456",
-      passwordType: "encrypted-password",
+      website: "",
+      email: "",
+      password: "",
+      passwordType: "",
     },
   });
 
