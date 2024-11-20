@@ -85,7 +85,7 @@ function PassswordGeneratorDialog() {
   };
 
   return (
-    <Dialog open={true}>
+    <Dialog>
       <DialogTrigger className="flex gap-3">
         <RectangleEllipsisIcon />
         <span> Password Generator</span>
