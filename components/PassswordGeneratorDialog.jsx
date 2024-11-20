@@ -14,6 +14,7 @@ import React, { useState } from "react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 function PassswordGeneratorDialog() {
   const [inputValue, setInputValue] = useState("");
@@ -22,8 +23,9 @@ function PassswordGeneratorDialog() {
   const [includeLowercase, setIncludeLowercase] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(false);
   const [length, setLength] = useState(16);
+  const [orgInputValue, setOrgInputValue] = useState("");
 
-  const genpass = () => {
+  const genpass = (userInput) => {
     const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
     const numberChars = "0123456789";
@@ -37,20 +39,53 @@ function PassswordGeneratorDialog() {
     if (includeSymbols) characterPool += symbolChars;
 
     if (!characterPool) {
+      toast.error("Please select at least one character type.", {
+        id: "copy-pass",
+      });
       return;
     }
 
-    let password = "";
-    for (let i = 0; i < length; i++) {
+    // let generatedPassword = "";
+    // for (let i = 0; i < length; i++) {
+    //   const randomIndex = Math.floor(Math.random() * characterPool.length);
+    //   generatedPassword += characterPool[randomIndex];
+    // }
+
+    const remainingLength = Math.max(0, length - orgInputValue.length);
+    const charsBeforeCount = Math.floor(remainingLength / 2);
+    const charsAfterCount = remainingLength - charsBeforeCount;
+
+    let charsBefore = "";
+    let charsAfter = "";
+
+    // Generate random characters for before the userInput
+    for (let i = 0; i < charsBeforeCount; i++) {
       const randomIndex = Math.floor(Math.random() * characterPool.length);
-      password += characterPool[randomIndex];
+      charsBefore += characterPool[randomIndex];
     }
 
-    setInputValue(password);
+    // Generate random characters for after the userInput
+    for (let i = 0; i < charsAfterCount; i++) {
+      const randomIndex = Math.floor(Math.random() * characterPool.length);
+      charsAfter += characterPool[randomIndex];
+    }
+
+    // Combine the parts to create the final password
+    const generatedPassword = charsBefore + orgInputValue + charsAfter;
+
+    setInputValue(generatedPassword);
+  };
+
+  const onClick = () => {
+    navigator.clipboard.writeText(inputValue).then(() =>
+      toast.success("Pasword copied successfully!", {
+        id: "copy-pass",
+      })
+    );
   };
 
   return (
-    <Dialog>
+    <Dialog open={true}>
       <DialogTrigger className="flex gap-3">
         <RectangleEllipsisIcon />
         <span> Password Generator</span>
@@ -66,9 +101,15 @@ function PassswordGeneratorDialog() {
                   className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 w-full text-lg h-8"
                   placeHolder=""
                   value={inputValue}
-                  disabled
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                    setOrgInputValue(e.target.value);
+                  }}
                 />
-                <CopyIcon className="stroke-primary/50" />
+                <CopyIcon
+                  className="stroke-primary/50 cursor-pointer"
+                  onClick={onClick}
+                />
               </div>
             </div>
             <div className="flex mt-3 flex-col justify-center">
